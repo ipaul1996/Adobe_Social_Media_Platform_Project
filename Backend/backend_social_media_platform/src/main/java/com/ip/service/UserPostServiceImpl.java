@@ -1,5 +1,6 @@
 package com.ip.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -7,9 +8,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ip.dto.PostDTO;
+import com.ip.dto.PostDTOV1;
 import com.ip.dto.UserDTO;
 import com.ip.dto.UserDTOV1;
+import com.ip.exception.PostException;
 import com.ip.exception.UserException;
+import com.ip.model.Post;
 import com.ip.model.User;
 import com.ip.repository.PostRepo;
 import com.ip.repository.UserRepo;
@@ -80,6 +85,8 @@ public class UserPostServiceImpl implements UserPostService {
 			user.setBio(dto.getBio());
 		}
 		
+		user.setUpdatedAt(LocalDateTime.now());
+		
 		return uRepo.save(user);
 	}
 
@@ -132,6 +139,171 @@ public class UserPostServiceImpl implements UserPostService {
 		return top5Users;
 	}
 
+
+	
+	
+	@Override
+	public Post createPost(PostDTO dto) throws UserException {
+		
+		Optional<User> op = uRepo.findById(dto.getUserId());
+		
+		if(op.isEmpty()) {
+			throw new UserException("Invalid user id");
+		}
+		
+		User user = op.get();
+		
+		Post post = new Post();
+		
+		post.setContent(dto.getContent());
+		post.setLikes(0);
+		
+		post.setUser(user);
+		user.getPosts().add(post);
+		
+		return pRepo.save(post);
+		
+	}
+
+
+
+	
+	@Override
+	public Post getPost(Integer postId) throws PostException {
+		
+		Optional<Post> op = pRepo.findById(postId);
+		
+		if(op.isEmpty()) {
+			throw new PostException("Invalid post id");
+		}
+		
+		return op.get();
+	}
+
+
+	
+	
+	@Override
+	public Post updatePost(PostDTOV1 dto) throws PostException {
+		
+		Optional<Post> op = pRepo.findById(dto.getPostId());
+		
+		if(op.isEmpty()) {
+			throw new PostException("Invalid post id");
+		}
+		
+		Post post = op.get();
+		
+		if(dto.getContent().equals(null)) {
+			throw new PostException("Post content can not be nu");
+		}
+		
+		post.setContent(dto.getContent());
+		post.setUpdated_at(LocalDateTime.now());
+		
+		
+		return pRepo.save(post);
+	}
+
+
+	
+	
+	@Override
+	public Post deletePost(Integer postId) throws PostException {
+		
+		Optional<Post> op = pRepo.findById(postId);
+		
+		if(op.isEmpty()) {
+			throw new PostException("Invalid post id");
+		}
+		
+		Post post = op.get();
+		
+		pRepo.delete(post);
+		
+		return post;
+	}
+
+
+	
+	
+	@Override
+	public Integer likePost(Integer postId) throws PostException {
+		
+		Optional<Post> op = pRepo.findById(postId);
+		
+		if(op.isEmpty()) {
+			throw new PostException("Invalid post id");
+		}
+		
+		Post post = op.get();
+		
+		post.setLikes(post.getLikes() + 1);
+		
+		return pRepo.save(post).getLikes();
+		
+	}
+
+
+	
+	
+	@Override
+	public Integer disLikePost(Integer postId) throws PostException {
+		
+		Optional<Post> op = pRepo.findById(postId);
+		
+		if(op.isEmpty()) {
+			throw new PostException("Invalid post id");
+		}
+		
+		Post post = op.get();
+		
+		post.setLikes(post.getLikes() - 1);
+		
+		return pRepo.save(post).getLikes();
+	}
+
+
+	
+	
+	@Override
+	public Integer getTotalNumberOfPosts() throws PostException {
+		
+		List<Post> posts =  pRepo.findAll();
+		
+		if(posts.isEmpty()) {
+			throw new PostException("No posts found");
+		}
+		
+		return posts.size();
+	}
+
+
+	
+	
+	@Override
+	public List<Post> getTop5MostLikedPost() throws PostException {
+		
+		List<Post> posts =  pRepo.findAll();
+		
+		if(posts.isEmpty()) {
+			throw new PostException("No posts found");
+		}
+		
+		List<Post> top5Posts =  posts.stream()
+									 .sorted((u1, u2) -> Integer.compare(u2.getLikes(), u1.getLikes()))
+									 .limit(5)
+									 .collect(Collectors.toList());
+		
+		return top5Posts;
+	}
+
+	
+	
+	
+	
+	
+	
 	
 	
 	

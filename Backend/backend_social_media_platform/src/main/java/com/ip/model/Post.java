@@ -10,6 +10,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,6 +31,9 @@ public class Post {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
+	@NotNull(message = "Post content can't be null")
+	@NotBlank(message = "Post content can't be blank")
+	@NotEmpty (message = "Post content can't be empty")
 	@Size(min = 1, max = 300, message = "Post content should have characters in the range 1 - 300")
 	private String content;
 	
