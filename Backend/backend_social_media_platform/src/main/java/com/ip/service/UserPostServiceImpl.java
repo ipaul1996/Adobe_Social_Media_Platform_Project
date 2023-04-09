@@ -27,6 +27,25 @@ public class UserPostServiceImpl implements UserPostService {
 	
 	@Autowired
 	private PostRepo pRepo;
+	
+
+	public UserPostServiceImpl(UserRepo userRepo) {
+		this.uRepo = userRepo;
+	}
+	
+
+
+	
+
+
+
+	
+
+
+
+
+
+
 
 	@Override
 	public User createUser(UserDTO dto) throws UserException {
@@ -36,6 +55,7 @@ public class UserPostServiceImpl implements UserPostService {
 		if(op.isPresent()) {
 			throw new UserException("User with email: " + dto.getEmail() + " already exists");
 		}
+		
 		
 		User user = new User();
 		
@@ -73,15 +93,15 @@ public class UserPostServiceImpl implements UserPostService {
 		
 		User user = op.get();
 		
-		if(dto.getName().equals(null) && dto.getBio().equals(null)) {
+		if(dto.getName()== null && dto.getBio() == null) {
 			throw new UserException("Both name and bio can not be null");
 		}
 		
-		if(!dto.getName().equals(null)) {
+		if(dto.getName() != null) {
 			user.setName(dto.getName());
 		}
 		
-		if(!dto.getBio().equals(null)) {
+		if(dto.getBio() != null) {
 			user.setBio(dto.getBio());
 		}
 		
@@ -194,7 +214,7 @@ public class UserPostServiceImpl implements UserPostService {
 		
 		Post post = op.get();
 		
-		if(dto.getContent().equals(null)) {
+		if(dto.getContent() == null) {
 			throw new PostException("Post content can not be nu");
 		}
 		
